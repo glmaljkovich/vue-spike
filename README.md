@@ -6,6 +6,7 @@ npm install
 ```
 
 ### Compiles and hot-reloads for development
+Available on http://localhost:8080
 ```
 npm run serve
 ```
@@ -19,6 +20,3 @@ npm run build
 ```
 npm run lint
 ```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
