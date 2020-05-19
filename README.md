@@ -1,5 +1,8 @@
 # vue-spike
 
+## Requirements
+NodeJS > 8.12
+
 ## Project setup
 ```
 npm install
