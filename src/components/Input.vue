@@ -9,17 +9,22 @@
       @input="$emit('input', $event.target.value)"
       v-model.trim="validator.$model"
       @blur="validator.$touch()"
+      required
       >
-    <small class="form-text text-muted">{{hint}}</small>
+    <small v-if="validator && validator.$error" class="error">{{errorMessage}}</small>
+    <small v-else class="form-text text-muted">{{hint}}</small>
   </div>
 </template>
 
 <script>
 export default {
   name: "FormInput",
-  props: ['value', 'hint', 'label', 'error', 'type', 'validator']
+  props: ['value', 'hint', 'label', 'errorMessage', 'type', 'validator']
 }
 </script>
 
 <style lang="css" scoped>
+.error {
+  color: red
+}
 </style>

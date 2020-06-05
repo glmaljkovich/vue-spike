@@ -1,22 +1,18 @@
 <template>
   <div id="app">
     <nav class="navbar navbar-light navbar-custom">
-      <span class="navbar-brand mb-0 h1"><img src="./assets/logo.png" height="24"/> App con nombre canchero</span>
+      <span class="navbar-brand mb-0 h1">🏥 Medical Supplies</span>
     </nav>
     <div class="container-fluid">
-      <SignUpForm/>
+      <router-view></router-view>
     </div>
   </div>
 </template>
 
 <script>
-import SignUpForm from './components/SignUpForm.vue'
 
 export default {
   name: 'App',
-  components: {
-    SignUpForm
-  }
 }
 </script>
 
