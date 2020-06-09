@@ -4,17 +4,10 @@
       <span class="navbar-brand mb-0 h1">🏥 Medical Supplies</span>
     </nav>
     <div class="container-fluid">
-      <router-view></router-view>
+      <nuxt />
     </div>
   </div>
 </template>
-
-<script>
-
-export default {
-  name: 'App',
-}
-</script>
 
 <style>
 #app {
