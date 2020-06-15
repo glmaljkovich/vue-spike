@@ -5,6 +5,6 @@ export default {
   },
   development: {
     host: "http://localhost",
-    port: "3000"
+    port: "5000"
   }
 }

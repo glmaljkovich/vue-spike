@@ -54,9 +54,9 @@
           hint="ej: Payamedico/a (no discriminamos)"
         />
         <FormInput
-          v-model="user.town"
+          v-model="user.locality"
           type="text"
-          :validator="$v.user.town"
+          :validator="$v.user.locality"
           error-message="Y dale con las 3 letras, si vas a mentir usa mas caracteres"
           label="Localidad"
           hint="A que barrio mandamos los insumos"
@@ -107,7 +107,7 @@ export default {
         entity: '',
         position: '',
         phone: '',
-        town: ''
+        locality: ''
       }
     }
   },
@@ -137,7 +137,7 @@ export default {
         required,
         minLength: minLength(4)
       },
-      town: {
+      locality: {
         required,
         minLength: minLength(4)
       }
@@ -145,7 +145,7 @@ export default {
   },
   methods: {
     submit () {
-      API.post('/user', this.user)
+      API.signUp(this.user)
         .then((_response) => {
           // console.log(response)
           this.showSuccessMessage = true

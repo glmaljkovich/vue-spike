@@ -88,7 +88,7 @@ export default {
   },
   methods: {
     submit () {
-      API.post('/user', this.user)
+      API.login(this.user)
         .then((_response) => {
           // console.log(response)
           this.showSuccessMessage = true
