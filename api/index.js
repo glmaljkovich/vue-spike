@@ -11,6 +11,8 @@ const client = axios.create({
 })
 
 const ENDPOINTS = {
+  CAAS: "https://cataas.com/cat",
+  SUPPLIES_ORDER: '/supplies-order',
   USER: {
     SIGN_IN: '/user/signin',
     SIGN_UP: '/user/signup',
@@ -20,4 +22,11 @@ const ENDPOINTS = {
 export const API = {
   login: (credentials) => client.post(ENDPOINTS.USER.SIGN_IN, credentials),
   signUp: (user) => client.post(ENDPOINTS.USER.SIGN_UP, user),
+  getCat: (type) => client.post(`${ENDPOINTS.CAAS}/${type}`),
+  createSupplyOrder: ({order, token}) => client.post(ENDPOINTS.SUPPLIES_ORDER, order, {
+    headers: {
+       Authorization: "Bearer " + token
+    }
+  }),
+  listSupplyOrders: (token) => client.get(ENDPOINTS.SUPPLIES_ORDER, { token })
 }

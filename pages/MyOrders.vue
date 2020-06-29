@@ -1,50 +1,59 @@
 <template>
-  <div class="suppliesorder row justify-content-center">
-    <div class="col-md-6">
+  <div class="myorders row justify-content-center">
+    <div class="col-md-10">
       <h2 class="text-light text-center">
-        Nueva solicitud
+        🗒️ Mis Solicitudes
       </h2>
-      <form class="form" @submit.prevent="submit">
-        <FormSelect
-          :value="order.supply"
-          label="💊 Insumo"
-          :options="supplies"
-          @select="(option) => {order.supply = option}"
-        />
-        <FormSelect
-          :value="order.area"
-          label="👥 Area destino"
-          :options="areas"
-          @select="(option) => {order.area = option}"
-        />
-
-        <button v-if="$v.user.$anyError" disabled class="btn btn-primary disabled">
-          Enviar
-        </button>
-        <button v-else type="submit" class="btn btn-primary">
-          Enviar
-        </button>
-
+      <div class="form rounded">
+        <div v-if="orders.length > 0" class="list-group">
+            <a v-for="order in orders" :key="order.id" href="#" class="list-group-item list-group-item-action">
+                <div class="col-xs-6">
+                    <strong>💊 Insumo</strong>
+                    <p>{{order.supply}}</p>
+                </div>
+                <div class="col-xs-6">
+                    <strong>👥 Area destino</strong>
+                    <p>{{order.area}}</p>
+                </div>
+            </a>
+            <a href="#" class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">List group item heading</h5>
+                <small class="text-muted">3 days ago</small>
+                </div>
+                <p class="mb-1">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
+                <small class="text-muted">Donec id elit non mi porta.</small>
+            </a>
+        </div>
+        <div v-else class="text-center p-4">
+            <img class="rounded" :src="noOrdersImage" alt="">
+            <p class="lead text-muted text-center mt-4"><i>Todavía no hiciste ningun pedido</i></p>
+            <button class="btn btn-success btn-lg" v-b-modal.supplies-order> <i class="fa fa-plus"></i> Nueva solicitud</button>
+        </div>
         <div v-if="showSuccessMessage" class="alert alert-success mt-111" role="alert">
           Solicitud enviada correctamente!
         </div>
         <div v-if="showErrorMessage" class="alert alert-danger mt-111" role="alert">
           Hubo un error al procesar tu solicitud
         </div>
-      </form>
+      </div>
+      <SuppliesOrder/>
     </div>
   </div>
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import { required, minLength, email } from 'vuelidate/lib/validators'
 import FormSelect from '~/components/Select'
+import SuppliesOrder from '~/components/SuppliesOrder'
 import { API } from '~/api'
 
 export default {
-  name: 'SuppliesOrder',
+  name: 'MyOrders',
   components: {
-    FormSelect
+    FormSelect,
+    SuppliesOrder
   },
   props: {
     msg: String
@@ -55,6 +64,7 @@ export default {
       showErrorMessage: false,
       submittingForm: false,
       error: null,
+      noOrdersImage: "https://cataas.com/cat/cute/says/Y%20las%20solicitudes?height=250",
       order: {
           supply: null,
           area: null,
@@ -65,9 +75,11 @@ export default {
           "Barbijos",
           "Guantes",
           "Medicamentos"
-      ]
+      ],
+      showModal: false
     }
   },
+  computed: mapState(["authUser", "orders"]),
   validations: {
     user: {
       name: {
@@ -101,18 +113,7 @@ export default {
     }
   },
   methods: {
-    submit () {
-      API.createSupplyOrder(this.user)
-        .then((_response) => {
-          // console.log(response)
-          this.showSuccessMessage = true
-          this.showErrorMessage = false
-        })
-        .catch((_error) => {
-          this.showSuccessMessage = false
-          this.showErrorMessage = true
-        })
-    }
+
   }
 }
 </script>
@@ -133,7 +134,7 @@ li {
 a {
   color: #42b983;
 }
-.suppliesorder{
+.myorders{
   text-align: left;
   height: calc(100vh - 56px);
 }
