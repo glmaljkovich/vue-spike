@@ -1,16 +1,29 @@
 import axios from 'axios'
 
 export const state = () => ({
+  areas: [],
   authUser: null,
-  orders: []
+  userEmail: null,
+  orders: [],
+  supplyTypes: []
 })
 
 export const mutations = {
   SET_USER (state, user) {
-    state.authUser = user
+    state.authUser = user["access_token"]
+    state.userEmail = user.email
   },
-  addOrder ({ orders }, order) {
-    orders.push(order)
+  addOrder (state, order) {
+    state.orders.push(order)
+  },
+  addOrders (state, orders) {
+    state.orders = [...state.orders, ...orders]
+  },
+  addSupplyTypes (state, supplyTypes) {
+    state.supplyTypes = [...state.supplyTypes, ...supplyTypes]
+  },
+  addAreas (state, areas) {
+    state.areas = areas
   }
 }
 
@@ -22,7 +35,7 @@ export const actions = {
     }
   },
   async loginAuth ({ commit }, data) {
-      commit('SET_USER', data["access_token"])
+      commit('SET_USER', data)
   },
 
   async logout ({ commit }) {

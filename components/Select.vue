@@ -3,7 +3,7 @@
     <label class="bold">{{ label }}</label>
     <select class="form-control" name="" id="" :value="value" @change="$emit('select', $event.target.value)">
         <option :value="''" disabled>Selecciona una opción</option>
-        <option v-for="option in options" :key="option" :value="option">{{option}}</option>
+        <option v-for="option in options" :key="option[optionValueProperty || option]" :value="option[optionValueProperty || option]">{{option[optionTextProperty] || option}}</option>
     </select>
   </div>
 </template>
@@ -11,7 +11,7 @@
 <script>
 export default {
     name: "FormSelect",
-    props: ["options", "value", "label"]
+    props: ["options", "value", "label", "optionTextProperty", "optionValueProperty"]
 }
 </script>
 

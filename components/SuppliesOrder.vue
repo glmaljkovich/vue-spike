@@ -2,21 +2,25 @@
   <b-modal id="supplies-order" title="Nueva solicitud" @ok="submit">
         <form class="form" @submit.prevent="submit">
           <FormSelect
-            :value="order.supply"
+            :value="order.supply_type"
             label="💊 Insumo"
-            :options="supplies"
-            @select="(option) => {order.supply = option}"
+            :options="supplyTypes"
+            @select="(option) => {order.supply_type = option}"
+            optionTextProperty="description"
+            optionValueProperty="id"
           />
           <FormSelect
-            :value="order.area"
+            :value="order.area_id"
             label="👥 Area destino"
             :options="areas"
-            @select="(option) => {order.area = option}"
+            @select="(option) => {order.area_id = option}"
+            optionTextProperty="description"
+            optionValueProperty="name"
           />
 
         </form>
         <template v-slot:modal-footer="{ ok }">
-          <button v-if="!order.supply || !order.area" disabled class="btn btn-primary disabled">
+          <button v-if="!order.supply_type || !order.area_id" disabled class="btn btn-primary disabled">
             Enviar
           </button>
           <button v-else type="submit" class="btn btn-primary" @click="ok()">
@@ -54,19 +58,13 @@ export default {
       submittingForm: false,
       error: null,
       order: {
-          supply: null,
-          area: null,
-      },
-      areas: ["Cirujia", "Terapia Intensiva", "Tecnicos"],
-      supplies: [
-          "Mascaras Protectoras",
-          "Barbijos",
-          "Guantes",
-          "Medicamentos"
-      ]
+          supply_type: {},
+          supply_attributes: {},
+          area_id: null,
+      }
     }
   },
-  computed: mapState(["authUser", "orders"]),
+  computed: mapState(["authUser", "orders", "supplyTypes", "areas", "userEmail"]),
   validations: {
     order: {
       area: {
@@ -82,19 +80,13 @@ export default {
   methods: {
     ...mapMutations(["addOrder"]),
     submit () {
-      const supplyOrder = {
-        "supply_type": this.order.supply,
-        "supply_attributes": {
-          "description": this.order.description
-        },
-        "area_id": this.order.area
-      }
-      API.createSupplyOrder({order: supplyOrder, token: this.authUser})
+      API.createSupplyOrder({order: this.order, token: this.authUser})
         .then((_response) => {
           // console.log(response)
           this.showSuccessMessage = true
           this.showErrorMessage = false
-          this.addOrder({...order, status: "pending"})
+
+          this.addOrder({...this.order, status: "PENDING", informer_id: this.userEmail})
         })
         .catch((_error) => {
           this.showSuccessMessage = false

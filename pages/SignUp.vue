@@ -150,6 +150,7 @@ export default {
           // console.log(response)
           this.showSuccessMessage = true
           this.showErrorMessage = false
+          this.$router.push("login")
         })
         .catch((_error) => {
           this.showSuccessMessage = false

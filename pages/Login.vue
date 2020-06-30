@@ -95,7 +95,7 @@ export default {
         .then((response) => {
           // console.log(response)
           this.showSuccessMessage = true
-          this.loginAuth(response.data)
+          this.loginAuth({...response.data, email: this.user.email})
           this.$router.push("myorders")
         })
         .catch((_error) => {

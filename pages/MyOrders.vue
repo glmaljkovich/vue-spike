@@ -5,26 +5,37 @@
         🗒️ Mis Solicitudes
       </h2>
       <div class="form rounded">
-        <div v-if="orders.length > 0" class="list-group">
-            <a v-for="order in orders" :key="order.id" href="#" class="list-group-item list-group-item-action">
-                <div class="col-xs-6">
-                    <strong>💊 Insumo</strong>
-                    <p>{{order.supply}}</p>
+          <div v-if="userOrders.length > 0">
+            <div class="row justify-content-end">
+                <button class="btn btn-success mx-3 mb-3" v-b-modal.supplies-order> <i class="fa fa-plus"></i> Nueva solicitud</button>
+            </div>
+            <div class="list-group">
+                <div v-for="order in userOrders" :key="order.id" href="#" class="list-group-item list-group-item-action">
+                    <div class="row">
+                        <div class="col">
+                            <strong>💊 Insumo</strong>
+                            <p>{{getSupplyName(order.supply_type)}}</p>
+                        </div>
+                        <div class="col">
+                            <strong>👥 Area destino</strong>
+                            <p>{{getAreaName(order.area_id)}}</p>
+                        </div>
+                        <div class="col">
+                            <strong>⏳ Status</strong>
+                            <h5><span class="badge badge-secondary">{{order.status}}</span></h5>
+                        </div>
+                        <div class="col">
+                            <strong>🚚 Proveedor</strong>
+                            <p>{{order.organization_name || "---"}}</p>
+                        </div>
+                        <div class="col">
+                            <button class="btn btn-danger mt-3 float-right" @click="cancelOrder"> <i class="fa fa-times"></i> Cancelar</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-xs-6">
-                    <strong>👥 Area destino</strong>
-                    <p>{{order.area}}</p>
-                </div>
-            </a>
-            <a href="#" class="list-group-item list-group-item-action">
-                <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1">List group item heading</h5>
-                <small class="text-muted">3 days ago</small>
-                </div>
-                <p class="mb-1">Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit.</p>
-                <small class="text-muted">Donec id elit non mi porta.</small>
-            </a>
-        </div>
+            </div>
+          </div>
+
         <div v-else class="text-center p-4">
             <img class="rounded" :src="noOrdersImage" alt="">
             <p class="lead text-muted text-center mt-4"><i>Todavía no hiciste ningun pedido</i></p>
@@ -43,7 +54,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapMutations } from 'vuex'
 import { required, minLength, email } from 'vuelidate/lib/validators'
 import FormSelect from '~/components/Select'
 import SuppliesOrder from '~/components/SuppliesOrder'
@@ -58,6 +69,7 @@ export default {
   props: {
     msg: String
   },
+  middleware: ["auth"],
   data () {
     return {
       showSuccessMessage: false,
@@ -69,17 +81,15 @@ export default {
           supply: null,
           area: null,
       },
-      areas: ["Cirujia", "Terapia Intensiva", "Tecnicos"],
-      supplies: [
-          "Mascaras Protectoras",
-          "Barbijos",
-          "Guantes",
-          "Medicamentos"
-      ],
       showModal: false
     }
   },
-  computed: mapState(["authUser", "orders"]),
+  computed: {
+      ...mapState(["authUser", "orders", "supplyTypes", "userEmail", "areas"]),
+      userOrders() {
+          return this.orders.filter(order => order["informer_id"] === this.userEmail)
+      }
+  },
   validations: {
     user: {
       name: {
@@ -112,8 +122,39 @@ export default {
       }
     }
   },
+    mounted() {
+        API.listSupplyTypes(this.authUser)
+            .then(({ data }) => {
+                this.addSupplyTypes(data.items)
+            }).catch(error => {
+                console.log(error);
+            }) 
+        API.listAreas(this.authUser)
+            .then(({ data }) => {
+                this.addAreas(data.items)
+            }).catch(error => {
+                console.log(error);
+            })
+        API.listSupplyOrders(this.authUser)
+            .then(({ data }) => {
+                this.addOrders(data.items)
+            }).catch(error => {
+                console.log(error);  
+            })
+    },
   methods: {
+      ...mapMutations(["addOrders", "addSupplyTypes", "addAreas"]),
+      getSupplyName(supplyType) {
+          return this.supplyTypes.length > 0 ? this.supplyTypes.find(supply => supply.id === supplyType).description : supplyType
+      },
+      getAreaName(areaId) {
+          console.log("areaId", areaId);
+          
+          return this.areas.length > 0 ? this.areas.find(area => area.name === areaId).description : areaId
+      },
+      cancelOrder(id) {
 
+      }
   }
 }
 </script>
