@@ -1,12 +1,29 @@
 import axios from 'axios'
 
 export const state = () => ({
-  authUser: null
+  areas: [],
+  authUser: null,
+  userEmail: null,
+  orders: [],
+  supplyTypes: []
 })
 
 export const mutations = {
   SET_USER (state, user) {
-    state.authUser = user
+    state.authUser = user["access_token"]
+    state.userEmail = user.email
+  },
+  addOrder (state, order) {
+    state.orders.push(order)
+  },
+  addOrders (state, orders) {
+    state.orders = [...state.orders, ...orders]
+  },
+  addSupplyTypes (state, supplyTypes) {
+    state.supplyTypes = [...state.supplyTypes, ...supplyTypes]
+  },
+  addAreas (state, areas) {
+    state.areas = areas
   }
 }
 
@@ -17,16 +34,8 @@ export const actions = {
       commit('SET_USER', req.session.authUser)
     }
   },
-  async login ({ commit }, { username, password }) {
-    try {
-      const { data } = await axios.post('/api/login', { username, password })
+  async loginAuth ({ commit }, data) {
       commit('SET_USER', data)
-    } catch (error) {
-      if (error.response && error.response.status === 401) {
-        throw new Error('Bad credentials')
-      }
-      throw error
-    }
   },
 
   async logout ({ commit }) {

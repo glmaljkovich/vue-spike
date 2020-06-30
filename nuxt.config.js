@@ -1,3 +1,4 @@
+const WebpackBuildNotifierPlugin = require('webpack-build-notifier');
 
 export default {
   mode: 'universal',
@@ -15,8 +16,14 @@ export default {
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
       {
         rel: 'stylesheet',
-        href: 'https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.cs',
+        href: 'https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css',
         integrity: 'sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh',
+        crossorigin: 'anonymous'
+      },
+      {
+        rel: 'stylesheet',
+        href: 'https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',
+        integrity: 'sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN',
         crossorigin: 'anonymous'
       }
     ]
@@ -29,6 +36,7 @@ export default {
   ** Global CSS
   */
   css: [
+    '@/assets/css/main.css',
   ],
   /*
   ** Plugins to load before mounting the App
@@ -66,7 +74,10 @@ export default {
     /*
     ** You can extend webpack config here
     */
-    extend (_config, _ctx) {
+    extend (config, {isDev, isClient}) {
+      if(isDev && isClient) {
+        config.plugins = [...config.plugins, new WebpackBuildNotifierPlugin()]
+      }
     }
   }
 }
