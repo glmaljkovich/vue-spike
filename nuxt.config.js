@@ -1,4 +1,8 @@
+import { APIConfig } from './api';
+
 const WebpackBuildNotifierPlugin = require('webpack-build-notifier');
+const ApiConfig = require('./api').APIConfig;
+const ENDPOINTS = require('./api').ENDPOINTS;
 
 export default {
   mode: 'universal',
@@ -16,13 +20,13 @@ export default {
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
       {
         rel: 'stylesheet',
-        href: 'https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css',
+        href: '//stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css',
         integrity: 'sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh',
         crossorigin: 'anonymous'
       },
       {
         rel: 'stylesheet',
-        href: 'https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',
+        href: '//stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',
         integrity: 'sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN',
         crossorigin: 'anonymous'
       }
@@ -42,7 +46,8 @@ export default {
   ** Plugins to load before mounting the App
   */
   plugins: [
-    { src: '~/plugins/vuelidate', ssr: true }
+    { src: '~/plugins/vuelidate', ssr: true },
+    '~/plugins/api.client'
   ],
   /*
   ** Nuxt.js dev-modules
@@ -58,6 +63,7 @@ export default {
     'bootstrap-vue/nuxt',
     // Doc: https://axios.nuxtjs.org/usage
     '@nuxtjs/axios',
+    '@nuxtjs/auth',
     // Doc: https://github.com/nuxt-community/dotenv-module
     '@nuxtjs/dotenv'
   ],
@@ -66,6 +72,15 @@ export default {
   ** See https://axios.nuxtjs.org/options
   */
   axios: {
+    baseURL: ApiConfig.baseURL,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Content-Type': 'application/json',
+      common: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json'
+      }
+    }
   },
   /*
   ** Build configuration
@@ -77,6 +92,16 @@ export default {
     extend (config, {isDev, isClient}) {
       if(isDev && isClient) {
         config.plugins = [...config.plugins, new WebpackBuildNotifierPlugin()]
+      }
+    }
+  },
+  auth: {
+    strategies: {
+      local: {
+        endpoints: {
+          login: { url: ENDPOINTS.USER.SIGN_IN, method: 'post', propertyName: 'access_token' },
+          user: { url: ENDPOINTS.USER.PROFILE, method: 'get', propertyName: false }
+        },
       }
     }
   }

@@ -6,12 +6,20 @@
       </h2>
       <form class="form" @submit.prevent="submit">
         <FormInput
-          v-model="user.name"
+          v-model="user.first_name"
           type="text"
-          :validator="$v.user.name"
+          :validator="$v.user.first_name"
           error-message="Tan corto va a ser? No te creo"
-          label="Nombre Completo"
-          hint="ej: Juan Perez"
+          label="Nombre"
+          hint="ej: Juan"
+        />
+        <FormInput
+          v-model="user.last_name"
+          type="text"
+          :validator="$v.user.last_name"
+          error-message="Tan corto va a ser? No te creo"
+          label="Apellido"
+          hint="ej: Perez"
         />
         <FormInput
           v-model="user.email"
@@ -84,15 +92,12 @@
 <script>
 import { required, minLength, email } from 'vuelidate/lib/validators'
 import FormInput from '~/components/Input'
-import { API } from '~/api'
 
 export default {
   name: 'SignUpForm',
+  auth: false,
   components: {
     FormInput
-  },
-  props: {
-    msg: String
   },
   data () {
     return {
@@ -101,7 +106,8 @@ export default {
       submittingForm: false,
       error: null,
       user: {
-        name: '',
+        first_name: '',
+        last_name: '',
         email: '',
         password: '',
         entity: '',
@@ -113,9 +119,13 @@ export default {
   },
   validations: {
     user: {
-      name: {
+      first_name: {
         required,
-        minLength: minLength(4)
+        minLength: minLength(2)
+      },
+      last_name: {
+        required,
+        minLength: minLength(2)
       },
       email: {
         required,
@@ -145,12 +155,12 @@ export default {
   },
   methods: {
     submit () {
-      API.signUp(this.user)
+      this.$api.signUp(this.user)
         .then((_response) => {
           // console.log(response)
           this.showSuccessMessage = true
           this.showErrorMessage = false
-          this.$router.push("login")
+          this.$router.push('login')
         })
         .catch((_error) => {
           this.showSuccessMessage = false

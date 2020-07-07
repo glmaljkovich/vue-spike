@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 <template>
   <div class="login row justify-content-center" :style="{ 'background-image': 'url(' + backgroundURL + ')' }">
     <div class="backdrop row justify-content-center">
@@ -48,10 +49,10 @@ import { mapActions } from 'vuex'
 import { required, minLength, email } from 'vuelidate/lib/validators'
 import randomanime from 'random-anime'
 import FormInput from '~/components/Input.vue'
-import { API } from '~/api'
 
 export default {
   name: 'LoginForm',
+  auth: false,
   components: {
     FormInput
   },
@@ -87,23 +88,20 @@ export default {
     }
   },
   methods: {
-    ...mapActions(["loginAuth"]),
-    submit () {
+    ...mapActions(['loginAuth']),
+    async submit () {
       this.showSuccessMessage = false
       this.showErrorMessage = false
-      API.login(this.user)
-        .then((response) => {
-          // console.log(response)
-          this.showSuccessMessage = true
-          this.loginAuth({...response.data, email: this.user.email})
-          this.$router.push("myorders")
-        })
-        .catch((_error) => {
-          console.log(_error);
-          
-          this.showSuccessMessage = false
-          this.showErrorMessage = true
-        })
+      try {
+        await this.$auth.loginWith('local', { data: this.user })
+        // console.log(response)
+        this.showSuccessMessage = true
+        this.$router.push('/myorders')
+      } catch (error) {
+        console.log(error)
+        this.showSuccessMessage = false
+        this.showErrorMessage = true
+      }
     }
   }
 }

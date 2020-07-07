@@ -1,10 +1,14 @@
 export default {
   production: {
-    host: "http://herokuapp.com",
-    port: "80"
+    host: 'medicalsupplies-back.herokuapp.com',
+    port: null,
+    https: true,
+    baseURL: 'https://medicalsupplies-back.herokuapp.com'
   },
   development: {
-    host: "http://localhost",
-    port: "5000"
+    host: 'localhost',
+    port: '5000',
+    https: false,
+    baseURL: 'http://localhost:5000'
   }
 }
