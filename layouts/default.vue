@@ -2,12 +2,35 @@
   <div id="app">
     <nav class="navbar navbar-light navbar-custom">
       <span class="navbar-brand mb-0 h1">🏥 Medical Supplies</span>
+      <b-dropdown v-if="$auth.user" right variant="outline-light" class="float-right" menu-class="w-100">
+        <template v-slot:button-content>
+          <span><i class="fa fa-user" /> {{ $auth.user.email }}</span>
+        </template>
+        <b-dropdown-item>
+          <b-button variant="primary" block size="sm" class="ml-1" @click="logout"><i class="fa fa-sign-out" /> Cerrar sesion</b-button>
+        </b-dropdown-item>
+      </b-dropdown>
     </nav>
     <div class="container-fluid">
       <nuxt />
     </div>
   </div>
 </template>
+
+<script>
+export default {
+  name: 'APP',
+  methods: {
+    async logout () {
+      try {
+        await this.$auth.logout()
+      } catch (error) {
+          console.log(error)
+      }
+    }
+  }
+}
+</script>
 
 <style>
 #app {

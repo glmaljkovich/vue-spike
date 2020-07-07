@@ -1,19 +1,13 @@
-/* eslint-disable no-console */
 <template>
-  <div class="myorders row justify-content-center">
+    <div class="admin row justify-content-center">
     <div class="col-md-10">
       <h2 class="text-light text-center">
-        🗒️ Mis Solicitudes
+        🗒️ Solicitudes
       </h2>
       <div class="form rounded">
-        <div v-if="userOrders.length > 0">
-          <div class="row justify-content-end">
-            <button v-b-modal.supplies-order class="btn btn-success mx-3 mb-3">
-              <i class="fa fa-plus" /> Nueva solicitud
-            </button>
-          </div>
+        <div v-if="orders.length > 0">
           <div class="list-group">
-            <div v-for="order in userOrders" :key="order.id" href="#" class="list-group-item list-group-item-action">
+            <div v-for="order in orders" :key="order.id" href="#" class="list-group-item list-group-item-action">
               <div class="row">
                 <div class="col">
                   <strong>💊 Insumo</strong>
@@ -32,9 +26,18 @@
                   <p>{{ order.organization_name || "---" }}</p>
                 </div>
                 <div class="col">
-                  <button class="btn btn-danger mt-3 float-right" @click="cancelOrder">
-                    <i class="fa fa-times" /> Cancelar
-                  </button>
+                  <strong>🧍 Solicitante</strong>
+                  <p>{{ order.informer_id || "---" }}</p>
+                </div>
+                <div class="col">
+                  <b-dropdown text="Acciones" variant="primary" class="mt-2">
+                    <b-dropdown-item-button v-b-modal.assign-org @click="() => selectedOrder = order">
+                      <i class="text-success fa fa-check" /> Aceptar
+                    </b-dropdown-item-button>
+                    <b-dropdown-item-button @click="() => rejectOrder(order)">
+                      <i class="text-danger fa fa-times" /> Rechazar
+                    </b-dropdown-item-button>
+                  </b-dropdown>
                 </div>
               </div>
             </div>
@@ -50,77 +53,50 @@
             <i class="fa fa-plus" /> Nueva solicitud
           </button>
         </div>
+        <div v-if="showSuccessMessage" class="alert alert-success mt-111" role="alert">
+          Solicitud enviada correctamente!
+        </div>
+        <div v-if="showErrorMessage" class="alert alert-danger mt-111" role="alert">
+          Hubo un error al procesar tu solicitud
+        </div>
       </div>
-      <SuppliesOrder />
+      <AssignOrganization :order='selectedOrder'/>
     </div>
-  </div>
+    </div>
 </template>
 
 <script>
 import { mapState, mapMutations } from 'vuex'
 import { required, minLength, email } from 'vuelidate/lib/validators'
+import AssignOrganization from '~/components/AssignOrganization'
 import StatusBadge from '~/components/StatusBadge'
-import SuppliesOrder from '~/components/SuppliesOrder'
 
 export default {
-  name: 'MyOrders',
+  name: 'Admin',
   components: {
-    StatusBadge,
-    SuppliesOrder
+    AssignOrganization,
+    StatusBadge
   },
   props: {
-    msg: String
+
   },
   middleware: ['auth'],
   data () {
     return {
+      showSuccessMessage: false,
+      showErrorMessage: false,
       submittingForm: false,
       error: null,
       noOrdersImage: 'https://cataas.com/cat/cute/says/Y%20las%20solicitudes?height=250',
-      order: {
-        supply: null,
-        area: null
-      },
+      selectedOrder: {},
       showModal: false
     }
   },
   computed: {
-    ...mapState(['authUser', 'orders', 'supplyTypes', 'areas']),
-    userOrders () {
-      return this.orders.filter(order => order.informer_id === this.$auth.user.email)
-    }
+    ...mapState(['orders', 'supplyTypes', 'areas'])
   },
   validations: {
-    user: {
-      name: {
-        required,
-        minLength: minLength(4)
-      },
-      email: {
-        required,
-        email
-      },
-      password: {
-        required,
-        minLength: minLength(8)
-      },
-      phone: {
-        required,
-        minLength: minLength(4)
-      },
-      position: {
-        required,
-        minLength: minLength(4)
-      },
-      entity: {
-        required,
-        minLength: minLength(4)
-      },
-      locality: {
-        required,
-        minLength: minLength(4)
-      }
-    }
+
   },
   mounted () {
     this.$api.listSupplyTypes()
@@ -135,7 +111,13 @@ export default {
       }).catch((error) => {
         console.log(error)
       })
-    this.$api.listSupplyOrders(this.$auth.user.email)
+    this.$api.listOrgs()
+      .then(({ data }) => {
+        this.addOrgs(data.items)
+      }).catch((error) => {
+        console.log(error)
+      })
+    this.$api.listSupplyOrders()
       .then(({ data }) => {
         this.addOrders(data.items)
       }).catch((error) => {
@@ -143,24 +125,37 @@ export default {
       })
   },
   methods: {
-    ...mapMutations(['addOrders', 'addSupplyTypes', 'addAreas']),
+    ...mapMutations(['addOrders', 'addSupplyTypes', 'addAreas', 'addOrgs', 'updateOrder']),
     getSupplyName (supplyType) {
-      return this.supplyTypes.length > 0 ? this.supplyTypes.find(supply => supply.id === supplyType).description : supplyType
+      return this.supplyTypes.length > 0 ? (this.supplyTypes.find(supply => supply.id === supplyType) || {}).description : supplyType
     },
     getAreaName (areaId) {
       console.log('areaId', areaId)
 
-      return this.areas.length > 0 ? this.areas.find(area => area.name === areaId).description : areaId
+      return this.areas.length > 0 ? (this.areas.find(area => area.name === areaId) || {}).description : areaId
     },
-    cancelOrder (id) {
-
+    toast (variant, msg) {
+      this.$bvToast.toast(msg, {
+        toaster: 'b-toaster-bottom-right',
+        solid: true,
+        title: 'Mensaje',
+        variant,
+        appendToast: false
+      })
+    },
+    rejectOrder (order) {
+      const orderPayload = { supplies_order_id: order.id }
+      this.$api.rejectSupplyOrder({ order: orderPayload })
+        .then(() => {
+          this.updateOrder({ id: order.id, status: 'REJECTED' })
+          this.toast('success', 'La solicitud ha sido rechazada')
+        })
     }
   }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style>
 h2 {
   margin: 40px 0 0 0;
 }

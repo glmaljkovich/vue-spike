@@ -1,5 +1,18 @@
-<script lang="js">
-import SignUp from '~/pages/SignUp.vue'
+<template>
+    <div></div>
+</template>>
 
-export default SignUp
+<script lang="js">
+
+export default {
+  created () {
+      if (!this.$auth.user) {
+          this.$router.push('signup')
+      } else if (!this.$auth.user.is_admin) {
+          this.$router.push('myorders')
+      } else {
+          this.$router.push('admin')
+      }
+  }
+}
 </script>

@@ -1,39 +1,40 @@
 <template>
   <b-modal id="supplies-order" title="Nueva solicitud" @ok="submit">
-        <form class="form" @submit.prevent="submit">
-          <FormSelect
-            :value="order.supply_type"
-            label="💊 Insumo"
-            :options="supplyTypes"
-            @select="(option) => {order.supply_type = option}"
-            optionTextProperty="description"
-            optionValueProperty="id"
-          />
-          <FormSelect
-            :value="order.area_id"
-            label="👥 Area destino"
-            :options="areas"
-            @select="(option) => {order.area_id = option}"
-            optionTextProperty="description"
-            optionValueProperty="name"
-          />
-
-        </form>
-        <template v-slot:modal-footer="{ ok }">
-          <button v-if="!order.supply_type || !order.area_id" disabled class="btn btn-primary disabled">
-            Enviar
-          </button>
-          <button v-else type="submit" class="btn btn-primary" @click="ok()">
-            Enviar
-          </button>
-
-          <div v-if="showSuccessMessage" class="alert alert-success mt-111" role="alert">
-            Solicitud enviada correctamente!
-          </div>
-          <div v-if="showErrorMessage" class="alert alert-danger mt-111" role="alert">
-            Hubo un error al procesar tu solicitud
-          </div>
-        </template>
+    <form class="form" @submit.prevent="submit">
+      <FormSelect
+        :value="order.supply_type"
+        label="💊 Insumo"
+        :options="supplyTypes"
+        option-text-property="description"
+        option-value-property="id"
+        @select="(option) => {order.supply_type = option}"
+      />
+      <FormInput
+        v-if="order.supply_type === 'MEDICAMENTO'"
+        v-model="order.supply_attributes.description"
+        type="text"
+        :validator="$v.order.supply_description"
+        error-message="El nombre es muy corto"
+        label="Nombre del medicamento"
+        hint="Ej: Clonas el pan"
+      />
+      <FormSelect
+        :value="order.area_id"
+        label="👥 Area destino"
+        :options="areas"
+        option-text-property="description"
+        option-value-property="name"
+        @select="(option) => {order.area_id = option}"
+      />
+    </form>
+    <template v-slot:modal-footer="{ ok }">
+      <button v-if="!order.supply_type || !order.area_id" disabled class="btn btn-primary disabled">
+        Enviar
+      </button>
+      <button v-else type="submit" class="btn btn-primary" @click="ok()">
+        Enviar
+      </button>
+    </template>
   </b-modal>
 </template>
 
@@ -41,30 +42,29 @@
 import { mapState, mapMutations } from 'vuex'
 import { required, minLength, email } from 'vuelidate/lib/validators'
 import FormSelect from '~/components/Select'
-import { API } from '~/api'
+import FormInput from '~/components/Input'
 
 export default {
   name: 'SuppliesOrder',
   components: {
-    FormSelect
+    FormSelect,
+    FormInput
   },
   props: {
-    msg: String
+
   },
   data () {
     return {
-      showSuccessMessage: false,
-      showErrorMessage: false,
       submittingForm: false,
       error: null,
       order: {
-          supply_type: {},
-          supply_attributes: {},
-          area_id: null,
+        supply_type: null,
+        supply_attributes: {},
+        area_id: null
       }
     }
   },
-  computed: mapState(["authUser", "orders", "supplyTypes", "areas", "userEmail"]),
+  computed: mapState(['authUser', 'orders', 'supplyTypes', 'areas']),
   validations: {
     order: {
       area: {
@@ -75,23 +75,31 @@ export default {
         required,
         minLength: minLength(4)
       },
+      supply_description: {
+        minLength: minLength(4)
+      }
     }
   },
   methods: {
-    ...mapMutations(["addOrder"]),
+    ...mapMutations(['addOrder']),
     submit () {
-      API.createSupplyOrder({order: this.order, token: this.authUser})
+      this.$api.createSupplyOrder({ order: this.order })
         .then((_response) => {
-          // console.log(response)
-          this.showSuccessMessage = true
-          this.showErrorMessage = false
-
-          this.addOrder({...this.order, status: "PENDING", informer_id: this.userEmail})
+          this.addOrder({ ...this.order, status: 'PENDING', informer_id: this.$auth.user.email })
+          this.toast('success', 'Solicitud enviada correctamente')
         })
         .catch((_error) => {
-          this.showSuccessMessage = false
-          this.showErrorMessage = true
+          this.toast('danger', 'Hubo un problema al procesar tu solicitud')
         })
+    },
+    toast (variant, msg) {
+      this.$bvToast.toast(msg, {
+        toaster: 'b-toaster-bottom-right',
+        solid: true,
+        title: 'Mensaje',
+        variant,
+        appendToast: false
+      })
     }
   }
 }
