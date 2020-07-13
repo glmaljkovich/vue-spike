@@ -96,6 +96,9 @@ export default {
         await this.$auth.loginWith('local', { data: this.user })
         // console.log(response)
         this.showSuccessMessage = true
+        if (this.$auth.user.is_admin) {
+          this.$router.push('/admin')
+        }
         this.$router.push('/myorders')
       } catch (error) {
         console.log(error)

@@ -7,6 +7,7 @@ export const API = client => ({
   createSupplyOrder: ({ order }) => client.post(ENDPOINTS.SUPPLIES_ORDER.BASE, order),
   listSupplyOrders: (informer_id) => client.get(ENDPOINTS.SUPPLIES_ORDER.BASE + `${informer_id ? '?informer_id=' + encodeURIComponent(informer_id) : ''}`),
   acceptSupplyOrder: ({ order }) => client.post(ENDPOINTS.SUPPLIES_ORDER.ACCEPT, order),
+  cancelSupplyOrder: ({ orderId }) => client.delete(ENDPOINTS.SUPPLIES_ORDER.BASE + `/${orderId}`),
   rejectSupplyOrder: ({ order }) => client.post(ENDPOINTS.SUPPLIES_ORDER.REJECT, order),
   listSupplyTypes: () => client.get(ENDPOINTS.SUPPLY_TYPES),
   listAreas: () => client.get(ENDPOINTS.AREAS),

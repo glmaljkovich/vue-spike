@@ -32,9 +32,10 @@
                   <p>{{ order.organization_name || "---" }}</p>
                 </div>
                 <div class="col">
-                  <button class="btn btn-danger mt-3 float-right" @click="cancelOrder">
+                  <button v-if="order.status === 'PENDING'" class="btn btn-danger mt-3 float-right" @click="() => cancelOrder(order)">
                     <i class="fa fa-times" /> Cancelar
                   </button>
+                  <p v-else class="mt-4 float-right"><i>Sin acciones</i></p>
                 </div>
               </div>
             </div>
@@ -143,7 +144,7 @@ export default {
       })
   },
   methods: {
-    ...mapMutations(['addOrders', 'addSupplyTypes', 'addAreas']),
+    ...mapMutations(['addOrders', 'addSupplyTypes', 'addAreas', 'removeOrder']),
     getSupplyName (supplyType) {
       return this.supplyTypes.length > 0 ? this.supplyTypes.find(supply => supply.id === supplyType).description : supplyType
     },
@@ -152,8 +153,23 @@ export default {
 
       return this.areas.length > 0 ? this.areas.find(area => area.name === areaId).description : areaId
     },
-    cancelOrder (id) {
-
+    cancelOrder (order) {
+      this.$api.cancelSupplyOrder({ orderId: order.id })
+        .then(() => {
+          this.toast('success', 'Solicitud cancelada')
+          this.removeOrder(order)
+        }).catch((_error) => {
+          this.toast('danger', 'Hubo un problema al cancelar tu solicitud')
+        })
+    },
+    toast (variant, msg) {
+      this.$bvToast.toast(msg, {
+        toaster: 'b-toaster-bottom-right',
+        solid: true,
+        title: 'Mensaje',
+        variant,
+        appendToast: false
+      })
     }
   }
 }
@@ -175,7 +191,9 @@ li {
 a {
   color: #42b983;
 }
-
+.myorders {
+  min-height: calc(100vh - 50px);
+}
 .form {
     background-color: white;
     padding: 2em;

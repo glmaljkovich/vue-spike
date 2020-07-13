@@ -25,6 +25,9 @@ export const mutations = {
   updateOrder ({ orders }, { id, status }) {
     const leorder = orders.find(order => order.id === id)
     leorder.status = status
+  },
+  removeOrder (state, order) {
+    state.orders = state.orders.filter(ord => ord.id !== order.id)
   }
 }
 
