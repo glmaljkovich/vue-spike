@@ -98,8 +98,9 @@ export default {
         this.showSuccessMessage = true
         if (this.$auth.user.is_admin) {
           this.$router.push('/admin')
+        } else {
+          this.$router.push('/myorders')
         }
-        this.$router.push('/myorders')
       } catch (error) {
         console.log(error)
         this.showSuccessMessage = false

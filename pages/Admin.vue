@@ -180,4 +180,7 @@ a {
 .mt-111 {
   margin-top: 1em;
 }
+.admin {
+  min-height: calc(100vh - 61px);
+}
 </style>

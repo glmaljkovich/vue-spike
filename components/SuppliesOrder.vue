@@ -59,7 +59,7 @@ export default {
       error: null,
       order: {
         supply_type: null,
-        supply_attributes: {},
+        supply_attributes: { description: '' },
         area_id: null
       }
     }
@@ -67,16 +67,9 @@ export default {
   computed: mapState(['authUser', 'orders', 'supplyTypes', 'areas']),
   validations: {
     order: {
-      area: {
-        required,
-        minLength: minLength(4)
-      },
-      supply: {
-        required,
-        minLength: minLength(4)
-      },
       supply_description: {
-        minLength: minLength(4)
+        required,
+        minLength: minLength(1)
       }
     }
   },
@@ -84,8 +77,8 @@ export default {
     ...mapMutations(['addOrder']),
     submit () {
       this.$api.createSupplyOrder({ order: this.order })
-        .then((_response) => {
-          this.addOrder({ ...this.order, status: 'PENDING', informer_id: this.$auth.user.email })
+        .then(({ data }) => {
+          this.addOrder({ ...this.order, status: 'PENDING', informer_id: this.$auth.user.email, id: data.id })
           this.toast('success', 'Solicitud enviada correctamente')
         })
         .catch((_error) => {
