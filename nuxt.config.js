@@ -65,7 +65,9 @@ export default {
     '@nuxtjs/axios',
     '@nuxtjs/auth',
     // Doc: https://github.com/nuxt-community/dotenv-module
-    '@nuxtjs/dotenv'
+    '@nuxtjs/dotenv',
+    // Doc: https://github.com/nuxt-community/sentry-module
+    '@nuxtjs/sentry',
   ],
   /*
   ** Axios module configuration
@@ -82,6 +84,11 @@ export default {
       }
     }
   },
+  sentry: {
+    dsn: 'https://9deff4f573d246abaeeb59ad044eb8d2@o419949.ingest.sentry.io/5337246', // Enter your project's DSN here
+    config: {}, // Additional config
+  },
+  
   /*
   ** Build configuration
   */
