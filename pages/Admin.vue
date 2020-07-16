@@ -4,7 +4,7 @@
       <h2 class="text-light text-center">
         🗒️ Solicitudes
       </h2>
-      <div class="form rounded">
+      <div v-if="!loading" class="form rounded">
         <div v-if="orders.length > 0">
           <div class="list-group">
             <div v-for="order in orders" :key="order.id" href="#" class="list-group-item list-group-item-action">
@@ -60,6 +60,9 @@
           Hubo un error al procesar tu solicitud
         </div>
       </div>
+      <div v-else class="form rounded">
+        <Loader />
+      </div>
       <AssignOrganization :order='selectedOrder'/>
     </div>
     </div>
@@ -70,11 +73,13 @@ import { mapState, mapMutations } from 'vuex'
 import { required, minLength, email } from 'vuelidate/lib/validators'
 import AssignOrganization from '~/components/AssignOrganization'
 import StatusBadge from '~/components/StatusBadge'
+import Loader from '~/components/Loading'
 
 export default {
   name: 'Admin',
   components: {
     AssignOrganization,
+    Loader,
     StatusBadge
   },
   props: {
@@ -89,7 +94,8 @@ export default {
       error: null,
       noOrdersImage: 'https://cataas.com/cat/cute/says/Y%20las%20solicitudes?height=250',
       selectedOrder: {},
-      showModal: false
+      showModal: false,
+      loading: true
     }
   },
   computed: {
@@ -120,6 +126,7 @@ export default {
     this.$api.listSupplyOrders()
       .then(({ data }) => {
         this.addOrders(data.items)
+        this.loading = false
       }).catch((error) => {
         console.log(error)
       })
