@@ -3,7 +3,8 @@
     <div class="col-md-6">
       <h2 class="text-light text-center">
         Cree su cuenta
-      </h2>
+    </h2>
+    <b-button @click="() => unhandledError()" >RomperLaPagina</b-button>
       <form class="form" @submit.prevent="submit">
         <FormInput
           v-model="user.first_name"
@@ -166,6 +167,10 @@ export default {
           this.showSuccessMessage = false
           this.showErrorMessage = true
         })
+    },
+    unhandledError() {
+      throw("Soy una funcion dispuesta a  romper la pista")
+      
     }
   }
 }
