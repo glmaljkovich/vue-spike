@@ -3,7 +3,7 @@
     <nav class="navbar navbar-light navbar-custom">
       <span class="navbar-brand mb-0 h1">🏥 Medical Supplies</span>
       <span class="float-right">
-        <i v-if="this.$auth.user.is_admin" class="fa fa-shield text-white px-2" aria-hidden="true"></i>
+        <i v-if="this.$auth.user && this.$auth.user.is_admin" class="fa fa-shield text-white px-2" aria-hidden="true"></i>
         <b-dropdown v-if="$auth.user" right variant="outline-light" class="" menu-class="w-100">
           <template v-slot:button-content>
             <span><i class="fa fa-user" /> {{ $auth.user.email }}</span>

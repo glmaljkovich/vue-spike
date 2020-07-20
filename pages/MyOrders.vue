@@ -5,7 +5,7 @@
       <h2 class="text-light text-center">
         🗒️ Mis Solicitudes
       </h2>
-      <div class="form rounded">
+      <div v-if="!loading" class="form rounded">
         <div v-if="userOrders.length > 0">
           <div class="row justify-content-end">
             <button v-b-modal.supplies-order class="btn btn-success mx-3 mb-3">
@@ -39,6 +39,11 @@
                 </div>
               </div>
             </div>
+            <div v-if="updatingList" class="loadingoverlay">
+              <div class="form rounded">
+                <Loader />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -52,6 +57,9 @@
           </button>
         </div>
       </div>
+      <div v-else class="form rounded">
+        <Loader />
+      </div>
       <SuppliesOrder />
     </div>
   </div>
@@ -60,12 +68,14 @@
 <script>
 import { mapState, mapMutations } from 'vuex'
 import { required, minLength, email } from 'vuelidate/lib/validators'
+import Loader from '~/components/Loading'
 import StatusBadge from '~/components/StatusBadge'
 import SuppliesOrder from '~/components/SuppliesOrder'
 
 export default {
   name: 'MyOrders',
   components: {
+    Loader,
     StatusBadge,
     SuppliesOrder
   },
@@ -75,6 +85,7 @@ export default {
   middleware: ['auth'],
   data () {
     return {
+      loading: true,
       submittingForm: false,
       error: null,
       noOrdersImage: 'https://cataas.com/cat/cute/says/Y%20las%20solicitudes?height=250',
@@ -82,7 +93,8 @@ export default {
         supply: null,
         area: null
       },
-      showModal: false
+      showModal: false,
+      updatingList: false
     }
   },
   computed: {
@@ -139,6 +151,7 @@ export default {
     this.$api.listSupplyOrders(this.$auth.user.email)
       .then(({ data }) => {
         this.addOrders(data.items)
+        this.loading = false
       }).catch((error) => {
         console.log(error)
       })
@@ -154,12 +167,15 @@ export default {
       return this.areas.length > 0 ? this.areas.find(area => area.name === areaId).description : areaId
     },
     cancelOrder (order) {
+      this.updatingList = true
       this.$api.cancelSupplyOrder({ orderId: order.id })
         .then(() => {
           this.toast('success', 'Solicitud cancelada')
           this.removeOrder(order)
+          this.updatingList = false
         }).catch((_error) => {
           this.toast('danger', 'Hubo un problema al cancelar tu solicitud')
+          this.updatingList = false
         })
     },
     toast (variant, msg) {
@@ -202,5 +218,11 @@ a {
 }
 .mt-111 {
   margin-top: 1em;
+}
+
+.loadingoverlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
 }
 </style>
