@@ -1,22 +1,21 @@
 <template>
-  <b-modal id="assign-org" title="Asignar Organizacion" @ok="submit">
+  <b-modal id="reject-org" title="Rechazar solicitud" @ok="rejectOrder">
     <form class="formolio" @submit.prevent="submit">
-      <FormSelect
-        :value="organization_id"
-        label="👥 Organizacion"
-        :options="orgbyType(order.supply_type)"
-        option-text-property="organization_name"
-        option-value-property="organization_id"
-        @select="(option) => {organization_id = option}"
-        @search:focus="() => { organization_id = null }"
+        <FormInput
+            v-model="reason"
+            type="text"
+            :validator="$v.reason"
+            error-message="El motivo es muy corto"
+            label="Motivo"
+            hint="Ej: No ser peronista"
       />
     </form>
     <template v-slot:modal-footer="{ ok }">
-      <button v-if="!organization_id" disabled class="btn btn-primary disabled">
-        Aceptar Solicitud
+      <button v-if="!reason" disabled class="btn btn-primary disabled">
+        Rechazar Solicitud
       </button>
       <button v-else type="submit" class="btn btn-primary" @click="ok()">
-        Aceptar Solicitud
+        Rechazar Solicitud
       </button>
     </template>
   </b-modal>
@@ -25,20 +24,26 @@
 <script>
 import { mapState, mapMutations } from 'vuex'
 import { required, minLength, email } from 'vuelidate/lib/validators'
-import FormSelect from '~/components/Select'
+import FormInput from '~/components/Input'
 
 export default {
   name: 'AssignOrganization',
   components: {
-    FormSelect
+    FormInput
   },
   props: ['order'],
   data () {
     return {
+      reason: null,
       submittingForm: false,
       error: null,
       organization_id: null
     }
+  },
+  validations: {
+      reason: {
+          minLength: minLength(4)
+      }
   },
   computed: mapState(['organizations']),
   methods: {
@@ -68,6 +73,14 @@ export default {
         variant,
         appendToast: false
       })
+    },
+    rejectOrder () {
+      const orderPayload = { supplies_order_id: this.order.id, note: this.reason }
+      this.$api.rejectSupplyOrder({ order: orderPayload })
+        .then(() => {
+          this.updateOrder({ id: this.order.id, status: 'REJECTED' })
+          this.toast('success', 'La solicitud ha sido rechazada')
+        })
     }
   }
 }

@@ -35,7 +35,7 @@
                       <b-dropdown-item-button v-b-modal.assign-org @click="() => selectedOrder = order">
                         <i class="text-success fa fa-check" /> Aceptar
                       </b-dropdown-item-button>
-                      <b-dropdown-item-button @click="() => rejectOrder(order)">
+                      <b-dropdown-item-button v-b-modal.reject-org @click="() => selectedOrder = order">
                         <i class="text-danger fa fa-times" /> Rechazar
                       </b-dropdown-item-button>
                     </b-dropdown>
@@ -62,6 +62,7 @@
           <Loader />
         </div>
         <AssignOrganization :order="selectedOrder" />
+        <RejectOrder :order="selectedOrder" />
       </div>
     </div>
     <div class="admin row justify-content-center">
@@ -95,11 +96,15 @@
                     <p>{{ order.informer_id || "---" }}</p>
                   </div>
                   <div class="col">
+                    <strong>💬 Comentario</strong>
+                    <p>{{ order.note || "---" }}</p>
+                  </div>
+                  <div class="col">
                     <b-dropdown text="Acciones" variant="primary" class="mt-2">
                       <b-dropdown-item-button v-b-modal.assign-org @click="() => selectedOrder = order">
                         <i class="text-success fa fa-check" /> Aceptar
                       </b-dropdown-item-button>
-                      <b-dropdown-item-button @click="() => rejectOrder(order)">
+                      <b-dropdown-item-button @click="() => selectedOrder = order">
                         <i class="text-danger fa fa-times" /> Rechazar
                       </b-dropdown-item-button>
                     </b-dropdown>
@@ -128,7 +133,6 @@
         <div v-else class="form rounded">
           <Loader />
         </div>
-        <AssignOrganization :order="selectedOrder" />
       </div>
     </div>
   </div>
@@ -138,6 +142,7 @@
 import { mapState, mapMutations } from 'vuex'
 import { required, minLength, email } from 'vuelidate/lib/validators'
 import AssignOrganization from '~/components/AssignOrganization'
+import RejectOrder from '~/components/RejectOrder'
 import StatusBadge from '~/components/StatusBadge'
 import Loader from '~/components/Loading'
 
@@ -145,6 +150,7 @@ export default {
   name: 'Admin',
   components: {
     AssignOrganization,
+    RejectOrder,
     Loader,
     StatusBadge
   },

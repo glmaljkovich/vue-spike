@@ -5,7 +5,14 @@
         <option :value="''" disabled>Selecciona una opción</option>
         <option v-for="option in options" :key="option[optionValueProperty || option]" :value="option[optionValueProperty || option]">{{option[optionTextProperty] || option}}</option>
     </select> -->
-    <v-select :label="optionTextProperty" :value="value" :reduce="option => optionValueProperty ? option[optionValueProperty] : option" :options="options" @input="setSelected" />
+    <v-select
+      :label="optionTextProperty"
+      :value="value"
+      :reduce="option => optionValueProperty ? option[optionValueProperty] : option"
+      :options="options"
+      @input="setSelected"
+      @search:focus="$emit('search:focus')"
+    />
   </div>
 </template>
 

@@ -32,6 +32,10 @@
                   <p>{{ order.organization_name || "---" }}</p>
                 </div>
                 <div class="col">
+                  <strong>💬 Comentario</strong>
+                  <p>{{ order.note || "---" }}</p>
+                </div>
+                <div class="col">
                   <button v-if="order.status === 'PENDING'" class="btn btn-danger mt-3 float-right" @click="() => cancelOrder(order)">
                     <i class="fa fa-times" /> Cancelar
                   </button>
