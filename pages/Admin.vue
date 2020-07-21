@@ -1,71 +1,137 @@
 <template>
+  <div>
     <div class="admin row justify-content-center">
-    <div class="col-md-10">
-      <h2 class="text-light text-center">
-        🗒️ Solicitudes
-      </h2>
-      <div v-if="!loading" class="form rounded">
-        <div v-if="orders.length > 0">
-          <div class="list-group">
-            <div v-for="order in orders" :key="order.id" href="#" class="list-group-item list-group-item-action">
-              <div class="row">
-                <div class="col">
-                  <strong>💊 Insumo</strong>
-                  <p>{{ getSupplyName(order.supply_type) }}</p>
-                </div>
-                <div class="col">
-                  <strong>👥 Area destino</strong>
-                  <p>{{ getAreaName(order.area_id) }}</p>
-                </div>
-                <div class="col">
-                  <strong>⏳ Status</strong>
-                  <StatusBadge :status="order.status" />
-                </div>
-                <div class="col">
-                  <strong>🚚 Proveedor</strong>
-                  <p>{{ order.organization_name || "---" }}</p>
-                </div>
-                <div class="col">
-                  <strong>🧍 Solicitante</strong>
-                  <p>{{ order.informer_id || "---" }}</p>
-                </div>
-                <div class="col">
-                  <b-dropdown text="Acciones" variant="primary" class="mt-2">
-                    <b-dropdown-item-button v-b-modal.assign-org @click="() => selectedOrder = order">
-                      <i class="text-success fa fa-check" /> Aceptar
-                    </b-dropdown-item-button>
-                    <b-dropdown-item-button @click="() => rejectOrder(order)">
-                      <i class="text-danger fa fa-times" /> Rechazar
-                    </b-dropdown-item-button>
-                  </b-dropdown>
+      <div class="col-md-10">
+        <h2 class="text-light text-center">
+          🗒️ Solicitudes sin procesar
+        </h2>
+        <div v-if="!loading" class="form rounded">
+          <div v-if="pendingOrders(orders).length > 0">
+            <div class="list-group">
+              <div v-for="order in pendingOrders(orders)" :key="order.id" href="#" class="list-group-item list-group-item-action">
+                <div class="row">
+                  <div class="col">
+                    <strong>💊 Insumo</strong>
+                    <p>{{ getSupplyName(order.supply_type) }}</p>
+                  </div>
+                  <div class="col">
+                    <strong>👥 Area destino</strong>
+                    <p>{{ getAreaName(order.area_id) }}</p>
+                  </div>
+                  <div class="col">
+                    <strong>⏳ Status</strong>
+                    <StatusBadge :status="order.status" />
+                  </div>
+                  <div class="col">
+                    <strong>🚚 Proveedor</strong>
+                    <p>{{ order.organization_name || "---" }}</p>
+                  </div>
+                  <div class="col">
+                    <strong>🧍 Solicitante</strong>
+                    <p>{{ order.informer_id || "---" }}</p>
+                  </div>
+                  <div class="col">
+                    <b-dropdown text="Acciones" variant="primary" class="mt-2">
+                      <b-dropdown-item-button v-b-modal.assign-org @click="() => selectedOrder = order">
+                        <i class="text-success fa fa-check" /> Aceptar
+                      </b-dropdown-item-button>
+                      <b-dropdown-item-button @click="() => rejectOrder(order)">
+                        <i class="text-danger fa fa-times" /> Rechazar
+                      </b-dropdown-item-button>
+                    </b-dropdown>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div v-else class="text-center p-4">
-          <img class="rounded" :src="noOrdersImage" alt="">
-          <p class="lead text-muted text-center mt-4">
-            <i>Todavía no hiciste ningun pedido</i>
-          </p>
-          <button v-b-modal.supplies-order class="btn btn-success btn-lg">
-            <i class="fa fa-plus" /> Nueva solicitud
-          </button>
+          <div v-else class="text-center p-4">
+            <img class="rounded" :src="noOrdersImage" alt="">
+            <p class="lead text-muted text-center mt-4">
+              <i>No hay pedidos pendientes. A mirar memes!</i>
+            </p>
+          </div>
+          <div v-if="showSuccessMessage" class="alert alert-success mt-111" role="alert">
+            Solicitud enviada correctamente!
+          </div>
+          <div v-if="showErrorMessage" class="alert alert-danger mt-111" role="alert">
+            Hubo un error al procesar tu solicitud
+          </div>
         </div>
-        <div v-if="showSuccessMessage" class="alert alert-success mt-111" role="alert">
-          Solicitud enviada correctamente!
+        <div v-else class="form rounded">
+          <Loader />
         </div>
-        <div v-if="showErrorMessage" class="alert alert-danger mt-111" role="alert">
-          Hubo un error al procesar tu solicitud
-        </div>
+        <AssignOrganization :order="selectedOrder" />
       </div>
-      <div v-else class="form rounded">
-        <Loader />
+    </div>
+    <div class="admin row justify-content-center">
+      <div class="col-md-10">
+        <h2 class="text-light text-center">
+          🗹 Solicitudes Procesadas
+        </h2>
+        <div v-if="!loading" class="form rounded">
+          <div v-if="theRest(orders).length > 0">
+            <div class="list-group">
+              <div v-for="order in theRest(orders)" :key="order.id" href="#" class="list-group-item list-group-item-action">
+                <div class="row">
+                  <div class="col">
+                    <strong>💊 Insumo</strong>
+                    <p>{{ getSupplyName(order.supply_type) }}</p>
+                  </div>
+                  <div class="col">
+                    <strong>👥 Area destino</strong>
+                    <p>{{ getAreaName(order.area_id) }}</p>
+                  </div>
+                  <div class="col">
+                    <strong>⏳ Status</strong>
+                    <StatusBadge :status="order.status" />
+                  </div>
+                  <div class="col">
+                    <strong>🚚 Proveedor</strong>
+                    <p>{{ order.organization_name || "---" }}</p>
+                  </div>
+                  <div class="col">
+                    <strong>🧍 Solicitante</strong>
+                    <p>{{ order.informer_id || "---" }}</p>
+                  </div>
+                  <div class="col">
+                    <b-dropdown text="Acciones" variant="primary" class="mt-2">
+                      <b-dropdown-item-button v-b-modal.assign-org @click="() => selectedOrder = order">
+                        <i class="text-success fa fa-check" /> Aceptar
+                      </b-dropdown-item-button>
+                      <b-dropdown-item-button @click="() => rejectOrder(order)">
+                        <i class="text-danger fa fa-times" /> Rechazar
+                      </b-dropdown-item-button>
+                    </b-dropdown>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div v-else class="text-center p-4">
+            <img class="rounded" :src="noOrdersImage" alt="">
+            <p class="lead text-muted text-center mt-4">
+              <i>Todavía no procesaste ninguna solicitud</i>
+            </p>
+            <button v-b-modal.supplies-order class="btn btn-success btn-lg">
+              <i class="fa fa-plus" /> Nueva solicitud
+            </button>
+          </div>
+          <div v-if="showSuccessMessage" class="alert alert-success mt-111" role="alert">
+            Solicitud enviada correctamente!
+          </div>
+          <div v-if="showErrorMessage" class="alert alert-danger mt-111" role="alert">
+            Hubo un error al procesar tu solicitud
+          </div>
+        </div>
+        <div v-else class="form rounded">
+          <Loader />
+        </div>
+        <AssignOrganization :order="selectedOrder" />
       </div>
-      <AssignOrganization :order='selectedOrder'/>
     </div>
-    </div>
+  </div>
 </template>
 
 <script>
@@ -157,6 +223,12 @@ export default {
           this.updateOrder({ id: order.id, status: 'REJECTED' })
           this.toast('success', 'La solicitud ha sido rechazada')
         })
+    },
+    pendingOrders (orders) {
+      return orders.filter(order => order.status === 'PENDING')
+    },
+    theRest (orders) {
+      return orders.filter(order => order.status !== 'PENDING')
     }
   }
 }
@@ -188,6 +260,6 @@ a {
   margin-top: 1em;
 }
 .admin {
-  min-height: calc(100vh - 61px);
+  min-height: calc(90vh - 61px);
 }
 </style>

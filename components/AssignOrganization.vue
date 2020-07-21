@@ -46,7 +46,10 @@ export default {
       const order = { supplies_order_id: this.order.id, organization_id: Number(this.organization_id) }
       this.$api.acceptSupplyOrder({ order })
         .then((_response) => {
-          this.updateOrder({ id: this.order.id, status: 'ACCEPTED' })
+          const orgName = this.orgbyType(this.order.supply_type)
+            .find(org => Number(org.organization_id) === Number(this.organization_id)).organization_name
+
+          this.updateOrder({ id: this.order.id, status: 'ACCEPTED', organization_name: orgName })
           this.toast('success', 'Cambios guardados.')
         })
         .catch((_error) => {

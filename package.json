@@ -23,6 +23,7 @@
     "bootstrap-vue": "^2.0.0",
     "nuxt": "^2.0.0",
     "random-anime": "^1.0.5",
+    "vue-select": "^3.10.7",
     "vuelidate": "^0.7.5"
   },
   "devDependencies": {

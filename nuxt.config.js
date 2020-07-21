@@ -47,7 +47,8 @@ export default {
   */
   plugins: [
     { src: '~/plugins/vuelidate', ssr: true },
-    '~/plugins/api.client'
+    '~/plugins/api.client',
+    '~/plugins/select.client'
   ],
   /*
   ** Nuxt.js dev-modules

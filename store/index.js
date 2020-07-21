@@ -22,9 +22,10 @@ export const mutations = {
   addOrgs (state, organizations) {
     state.organizations = organizations
   },
-  updateOrder ({ orders }, { id, status }) {
+  updateOrder ({ orders }, { id, status, organization_name }) {
     const leorder = orders.find(order => order.id === id)
     leorder.status = status
+    leorder.organization_name = organization_name ? organization_name : leorder.organization_name
   },
   removeOrder (state, order) {
     state.orders = state.orders.filter(ord => ord.id !== order.id)
@@ -34,3 +35,5 @@ export const mutations = {
 export const actions = {
 
 }
+
+export const strict = false
