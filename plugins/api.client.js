@@ -6,9 +6,15 @@ export const API = client => ({
   getCat: type => client.post(`${ENDPOINTS.CAAS}/${type}`),
   createSupplyOrder: ({ order }) => client.post(ENDPOINTS.SUPPLIES_ORDER.BASE, order),
   listSupplyOrders: (informer_id) => client.get(ENDPOINTS.SUPPLIES_ORDER.BASE + `${informer_id ? '?informer_id=' + encodeURIComponent(informer_id) : ''}`),
-  acceptSupplyOrder: ({ order }) => client.post(ENDPOINTS.SUPPLIES_ORDER.ACCEPT, order),
+  acceptSupplyOrder: ({ order }) => client.post(
+    ENDPOINTS.SUPPLIES_ORDER.ACCEPT.replace('{suppliesOrderId}', order.supplies_order_id),
+    { organization_id: order.organization_id }
+  ),
   cancelSupplyOrder: ({ orderId }) => client.delete(ENDPOINTS.SUPPLIES_ORDER.BASE + `/${orderId}`),
-  rejectSupplyOrder: ({ order }) => client.post(ENDPOINTS.SUPPLIES_ORDER.REJECT, order),
+  rejectSupplyOrder: ({ order }) => client.post(
+    ENDPOINTS.SUPPLIES_ORDER.REJECT.replace('{suppliesOrderId}', order.supplies_order_id),
+    { organization_id: order.organization_id }
+  ),
   listSupplyTypes: () => client.get(ENDPOINTS.SUPPLY_TYPES),
   listAreas: () => client.get(ENDPOINTS.AREAS),
   listOrgs: () => client.get(ENDPOINTS.ORGANIZATIONS)

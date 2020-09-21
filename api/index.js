@@ -5,13 +5,13 @@ export const APIConfig = process.env.NODE_ENV === 'production' ? config.producti
 export const ENDPOINTS = {
   AREAS: '/areas',
   CAAS: 'https://cataas.com/cat',
-  ORGANIZATIONS: '/organization/group-by-supply-type',
+  ORGANIZATIONS: '/organizations/group-by-supply-type',
   SUPPLIES_ORDER: {
-    BASE: '/supplies-order',
-    ACCEPT: '/supplies-order/accept',
-    REJECT: '/supplies-order/reject'
+    BASE: '/supplies-orders',
+    ACCEPT: '/supplies-orders/{suppliesOrderId}/accept',
+    REJECT: '/supplies-orders/{suppliesOrderId}/reject'
   },
-  SUPPLY_TYPES: '/supplies-order/supply-types',
+  SUPPLY_TYPES: '/supplies-orders/supply-types',
   USER: {
     PROFILE: '/user/profile',
     SIGN_IN: '/user/signin',
